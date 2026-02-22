@@ -37,4 +37,4 @@ jobs:
           password: ${{ secrets.HOSTINGER_PASSWORD }}
           port: ${{ secrets.HOSTINGER_PORT }}
           local-dir: frontend/dist/
-          server-dir: ${{ secrets.HOSTINGER_REMOTE_DIR }}
+          server-dir: ${{ endsWith(secrets.HOSTINGER_REMOTE_DIR, '/') && secrets.HOSTINGER_REMOTE_DIR || format('{0}/', secrets.HOSTINGER_REMOTE_DIR) }}
