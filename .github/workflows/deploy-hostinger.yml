@@ -36,5 +36,9 @@ jobs:
           username: ${{ secrets.HOSTINGER_USER }}
           password: ${{ secrets.HOSTINGER_PASSWORD }}
           port: ${{ secrets.HOSTINGER_PORT }}
+          protocol: ${{ secrets.HOSTINGER_PROTOCOL != '' && secrets.HOSTINGER_PROTOCOL || 'ftps' }}
+          security: loose
+          timeout: 120000
+          log-level: verbose
           local-dir: frontend/dist/
           server-dir: ${{ endsWith(secrets.HOSTINGER_REMOTE_DIR, '/') && secrets.HOSTINGER_REMOTE_DIR || format('{0}/', secrets.HOSTINGER_REMOTE_DIR) }}
