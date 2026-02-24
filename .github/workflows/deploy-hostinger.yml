@@ -41,4 +41,4 @@ jobs:
           timeout: 120000
           log-level: verbose
           local-dir: frontend/dist/
-          server-dir: ${{ secrets.REMOTE_DIR }}
+          server-dir: domains/lustrooms.com/public_html/
