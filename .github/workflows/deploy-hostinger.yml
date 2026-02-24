@@ -29,16 +29,14 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.HOSTINGER_HOST }}
-          username: ${{ secrets.HOSTINGER_USER }}
-          password: ${{ secrets.HOSTINGER_PASSWORD }}
-          port: ${{ secrets.HOSTINGER_PORT }}
-          protocol: ${{ secrets.HOSTINGER_PROTOCOL != '' && secrets.HOSTINGER_PROTOCOL || 'ftps' }}
-          security: loose
-          timeout: 120000
-          log-level: verbose
-          local-dir: frontend/dist/
-          server-dir: domains/lustrooms.com/public_html/
+      - name: Push built files to hostinger-deploy branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd frontend/dist
+          git init
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git add -A
+          git commit -m "Deploy $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" HEAD:hostinger-deploy
