@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 
 declare global {
@@ -11,6 +11,27 @@ declare global {
 const MC_URL = 'https://lustrooms.us4.list-manage.com/subscribe/post-json'
 const MC_U   = '5d82a55c65aa985a50b68c549'
 const MC_ID  = '295b3c56cf'
+
+const SNAP_SELECTORS = '.hero, .how-it-works, .features, .early-birds, .footer'
+const SCROLL_DURATION = 2000
+
+const easeInOut = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+
+function animateTo(container: HTMLElement, to: number): Promise<void> {
+  return new Promise(resolve => {
+    const from = container.scrollTop
+    let start: number | null = null
+    const tick = (now: number) => {
+      if (start === null) start = now
+      const p = Math.min((now - start) / SCROLL_DURATION, 1)
+      container.scrollTop = from + (to - from) * easeInOut(p)
+      if (p < 1) requestAnimationFrame(tick)
+      else resolve()
+    }
+    requestAnimationFrame(tick)
+  })
+}
 
 const SPOTS_START = 312
 const SPOTS_EPOCH = new Date('2026-02-25').getTime()
@@ -25,6 +46,45 @@ function App() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [cookieBanner, setCookieBanner] = useState(false)
+  const pageRef = useRef<HTMLDivElement>(null)
+  const scrolling = useRef(false)
+
+  const scrollToEl = (el: HTMLElement) => {
+    const page = pageRef.current
+    if (!page || scrolling.current) return
+    scrolling.current = true
+    const to = el.getBoundingClientRect().top - page.getBoundingClientRect().top + page.scrollTop
+    animateTo(page, to).then(() => { scrolling.current = false })
+  }
+
+  useEffect(() => {
+    const page = pageRef.current
+    if (!page) return
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      if (scrolling.current) return
+      const sections = Array.from(page.querySelectorAll<HTMLElement>(SNAP_SELECTORS))
+      const dir = e.deltaY > 0 ? 1 : -1
+      let curr = 0
+      for (let i = 0; i < sections.length; i++) {
+        const top = sections[i].getBoundingClientRect().top - page.getBoundingClientRect().top + page.scrollTop
+        if (top <= page.scrollTop + 10) curr = i
+      }
+      const next = Math.max(0, Math.min(sections.length - 1, curr + dir))
+      if (next !== curr) scrollToEl(sections[next])
+    }
+    page.addEventListener('wheel', handleWheel, { passive: false })
+    return () => page.removeEventListener('wheel', handleWheel)
+  }, [])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-visible') }),
+      { threshold: 0.15 }
+    )
+    document.querySelectorAll('.section-reveal').forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!localStorage.getItem('cookie_consent')) setCookieBanner(true)
@@ -73,15 +133,17 @@ function App() {
   }
 
   const scrollToForm = () => {
-    document.getElementById('early-birds')?.scrollIntoView({ behavior: 'smooth' })
+    const el = document.getElementById('early-birds')
+    if (el) scrollToEl(el)
   }
 
   const scrollToNext = () => {
-    document.querySelector('.how-it-works')?.scrollIntoView({ behavior: 'smooth' })
+    const el = document.querySelector<HTMLElement>('.how-it-works')
+    if (el) scrollToEl(el)
   }
 
   return (
-    <div className="page">
+    <div className="page" ref={pageRef}>
 
       {/* ── Cookie Banner ── */}
       {cookieBanner && (
@@ -131,20 +193,20 @@ function App() {
 
       {/* ── The Journey ── */}
       <section className="how-it-works">
-        <h2 className="section-title">The Journey</h2>
-        <p className="section-sub">Three steps to your perfect experience</p>
+        <h2 className="section-title section-reveal">The Journey</h2>
+        <p className="section-sub section-reveal">Three steps to your perfect experience</p>
         <div className="steps">
-          <div className="step">
+          <div className="step section-reveal">
             <span className="step-number">01</span>
             <h3>Choose Your Companion</h3>
             <p>Browse our AI models — each with her own personality, look, and style. Find the one that speaks to you.</p>
           </div>
-          <div className="step">
+          <div className="step section-reveal">
             <span className="step-number">02</span>
             <h3>Enter Your Room</h3>
             <p>Step into a private, immersive live experience built around your desires. No audience. Just you two.</p>
           </div>
-          <div className="step">
+          <div className="step section-reveal">
             <span className="step-number">03</span>
             <h3>Feel the Connection</h3>
             <p>Real-time, personalized performances that learn what you love — and keep getting better over time.</p>
@@ -154,18 +216,18 @@ function App() {
 
       {/* ── Features ── */}
       <section className="features">
-        <h2 className="section-title">Why lustrooms</h2>
-        <p className="section-sub">Everything you've always wanted. Nothing you didn't.</p>
+        <h2 className="section-title section-reveal">Why lustrooms</h2>
+        <p className="section-sub section-reveal">Everything you've always wanted. Nothing you didn't.</p>
         <div className="features-grid">
-          <div className="feature-card">
+          <div className="feature-card section-reveal">
             <h3>Completely Private</h3>
             <p>Zero judgment, total discretion. Your sessions are yours alone — nothing is ever shared, ever.</p>
           </div>
-          <div className="feature-card">
+          <div className="feature-card section-reveal">
             <h3>Always Available</h3>
             <p>No schedules, no waiting. Your companion is ready whenever you are — day or night.</p>
           </div>
-          <div className="feature-card">
+          <div className="feature-card section-reveal">
             <h3>Endlessly Beautiful</h3>
             <p>AI-crafted models that are stunning, unique, and captivating — designed to take your breath away.</p>
           </div>
@@ -174,7 +236,7 @@ function App() {
 
       {/* ── Early Bird Form ── */}
       <section id="early-birds" className="early-birds">
-        <div className="early-birds-inner">
+        <div className="early-birds-inner section-reveal">
           <div className="eb-badge">Limited Offer</div>
           <h2 className="eb-headline">Be Among the First</h2>
           <p className="eb-sub">

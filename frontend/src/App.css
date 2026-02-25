@@ -28,8 +28,6 @@ html, body {
   overflow-x: hidden;
   height: 100vh;
   overflow-y: scroll;
-  scroll-snap-type: y proximity;
-  scroll-behavior: smooth;
 }
 
 /* ─── Scroll Snap ───────────────────────────────────────────── */
@@ -70,10 +68,14 @@ html, body {
   font-size: 1.5rem;
   font-weight: 400;
   letter-spacing: 0.25em;
-  color: var(--gold);
   margin-bottom: 3.5rem;
   padding: 1.1rem 0;
-  opacity: 0.9;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold) 38%, #f0ddb0 50%, var(--gold) 62%, var(--gold) 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fadeSlideUp 1s ease both 0.1s, shimmerSlide 8s ease-in-out infinite 2s;
 }
 
 .logo-mark::before,
@@ -133,6 +135,41 @@ html, body {
   background: transparent;
   color: var(--gold);
 }
+
+/* ─── Animations ────────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmerSlide {
+  0%, 100% { background-position: 100% 50%; }
+  50%       { background-position: 0% 50%; }
+}
+
+/* Hero stagger */
+.hero-headline { animation: fadeSlideUp 1s ease both 0.35s; }
+.hero-sub      { animation: fadeSlideUp 1s ease both 0.55s; }
+.cta-btn       { animation: fadeSlideUp 1s ease both 0.75s; }
+.scroll-cue    { animation: fadeSlideUp 1s ease both 1s; }
+
+/* Section reveal */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+
+.section-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step.section-reveal:nth-child(2),
+.feature-card.section-reveal:nth-child(2) { transition-delay: 0.15s; }
+
+.step.section-reveal:nth-child(3),
+.feature-card.section-reveal:nth-child(3) { transition-delay: 0.3s; }
 
 /* ─── Shared Section Styles ─────────────────────────────────── */
 .section-title {
