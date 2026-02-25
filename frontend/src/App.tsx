@@ -4,22 +4,48 @@ import './App.css'
 declare global {
   interface Window {
     dataLayer: Record<string, unknown>[]
+    [key: string]: unknown
   }
 }
+
+const MC_URL = 'https://lustrooms.us4.list-manage.com/subscribe/post-json'
+const MC_U   = '5d82a55c65aa985a50b68c549'
+const MC_ID  = '295b3c56cf'
 
 function App() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('Early bird signup:', { email })
-    window.dataLayer = window.dataLayer || []
-    window.dataLayer.push({
-      event: 'early_bird_signup',
-      user_email: email,
-    })
-    setSubmitted(true)
+    setSubmitting(true)
+    setError('')
+
+    const cbName = 'mc_cb_' + Date.now()
+
+    window[cbName] = (data: { result: string; msg: string }) => {
+      delete window[cbName]
+      document.getElementById(cbName)?.remove()
+      setSubmitting(false)
+      if (data.result === 'success') {
+        window.dataLayer = window.dataLayer || []
+        window.dataLayer.push({ event: 'early_bird_signup', user_email: email })
+        setSubmitted(true)
+      } else {
+        const msg = data.msg?.includes('already subscribed')
+          ? 'You\'re already on the list!'
+          : 'Something went wrong — please try again.'
+        setError(msg)
+      }
+    }
+
+    const params = new URLSearchParams({ u: MC_U, id: MC_ID, EMAIL: email, c: cbName })
+    const script = document.createElement('script')
+    script.id = cbName
+    script.src = `${MC_URL}?${params.toString()}`
+    document.body.appendChild(script)
   }
 
   const scrollToForm = () => {
@@ -139,9 +165,10 @@ function App() {
                 onChange={e => setEmail(e.target.value)}
                 required
               />
-              <button type="submit" className="submit-btn">
-                Secure My Lifetime Deal
+              <button type="submit" className="submit-btn" disabled={submitting}>
+                {submitting ? 'Securing...' : 'Secure My Lifetime Deal'}
               </button>
+              {error && <p className="form-error">{error}</p>}
             </form>
           )}
 

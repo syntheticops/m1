@@ -356,6 +356,12 @@
   opacity: 0.6;
 }
 
+.form-error {
+  font-size: 0.8rem;
+  color: #c4706a;
+  text-align: center;
+}
+
 .success-message {
   display: flex;
   flex-direction: column;
