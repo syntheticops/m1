@@ -6,7 +6,7 @@
   --gold:       #c9a96e;
   --rose:       #c4706a;
   --cream:      #f0e6dc;
-  --muted:      #7a6e80;
+  --muted:      #a89eb8;
   --border:     rgba(201, 169, 110, 0.18);
 
   --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -14,6 +14,11 @@
 }
 
 /* ─── Page Wrapper ──────────────────────────────────────────── */
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 .page {
   background: var(--bg);
   color: var(--cream);
@@ -21,6 +26,19 @@
   font-weight: 300;
   line-height: 1.6;
   overflow-x: hidden;
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+/* ─── Scroll Snap ───────────────────────────────────────────── */
+.hero,
+.how-it-works,
+.features,
+.early-birds,
+.footer {
+  scroll-snap-align: start;
 }
 
 /* ─── Hero ──────────────────────────────────────────────────── */
@@ -192,7 +210,7 @@
 
 .step p {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.85;
 }
 
@@ -248,7 +266,7 @@
 
 .feature-card p {
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   line-height: 1.9;
 }
 
@@ -609,7 +627,6 @@
 
 .spots-fill {
   height: 100%;
-  width: 69%;
   background: linear-gradient(to right, var(--rose), var(--gold));
 }
 

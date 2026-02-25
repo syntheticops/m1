@@ -12,6 +12,13 @@ const MC_URL = 'https://lustrooms.us4.list-manage.com/subscribe/post-json'
 const MC_U   = '5d82a55c65aa985a50b68c549'
 const MC_ID  = '295b3c56cf'
 
+const SPOTS_START = 312
+const SPOTS_EPOCH = new Date('2026-02-25').getTime()
+const spotsCount = Math.min(
+  SPOTS_START + Math.floor((Date.now() - SPOTS_EPOCH) / 86400000) * 3,
+  499
+)
+
 function App() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -177,9 +184,9 @@ function App() {
           {/* Scarcity counter */}
           <div className="spots-counter">
             <div className="spots-bar">
-              <div className="spots-fill" />
+              <div className="spots-fill" style={{ width: `${(spotsCount / 500) * 100}%` }} />
             </div>
-            <p className="spots-label"><strong>347</strong> of 500 founding spots claimed</p>
+            <p className="spots-label"><strong>{spotsCount}</strong> of 500 founding spots claimed</p>
           </div>
 
           {submitted ? (
