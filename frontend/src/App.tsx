@@ -171,7 +171,7 @@ function App() {
           <div className="eb-badge">Limited Offer</div>
           <h2 className="eb-headline">Be Among the First</h2>
           <p className="eb-sub">
-            lustrooms launches at <strong>$29.99/month</strong>. Join the early bird list and lock in <strong>$17.99/month forever</strong> — that's 40% off, for life.
+            Join the early bird list and lock in your founding member rate — <strong>40% off, for life.</strong>
           </p>
 
           {/* Scarcity counter */}
