@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 declare global {
@@ -17,6 +17,23 @@ function App() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [cookieBanner, setCookieBanner] = useState(false)
+
+  useEffect(() => {
+    if (!localStorage.getItem('cookie_consent')) setCookieBanner(true)
+  }, [])
+
+  const acceptCookies = () => {
+    localStorage.setItem('cookie_consent', 'accepted')
+    setCookieBanner(false)
+    window.dataLayer = window.dataLayer || []
+    window.dataLayer.push({ event: 'cookie_consent_accepted' })
+  }
+
+  const declineCookies = () => {
+    localStorage.setItem('cookie_consent', 'declined')
+    setCookieBanner(false)
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -58,6 +75,20 @@ function App() {
 
   return (
     <div className="page">
+
+      {/* ── Cookie Banner ── */}
+      {cookieBanner && (
+        <div className="cookie-banner">
+          <p className="cookie-text">
+            We use cookies to analyse traffic and improve your experience.
+            See our <a href="/privacy.html">Privacy Policy</a>.
+          </p>
+          <div className="cookie-actions">
+            <button className="cookie-decline" onClick={declineCookies}>Decline</button>
+            <button className="cookie-accept" onClick={acceptCookies}>Accept</button>
+          </div>
+        </div>
+      )}
 
       {/* ── Hero ── */}
       <section className="hero">
